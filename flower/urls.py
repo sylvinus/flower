@@ -85,6 +85,7 @@ _handlers = [
 
     # Error
     (r".*", NotFoundErrorHandler),
+]
 
 """
     This patch adds mandatory HTTP Basic Auth to all requests, except websockets
@@ -146,4 +147,3 @@ for h in _handlers:
         handlers.append((h[0], require_basic_auth(h[1], oxauth), h[2]))
     else:
         handlers.append((h[0], require_basic_auth(h[1], oxauth)))
-]
