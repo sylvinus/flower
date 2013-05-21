@@ -17,8 +17,9 @@ class BaseTaskHandler(RequestHandler):
     def get_task_args(self):
         options = json_decode(self.request.body)
         args = options.pop('args', [])
+        queue = options.pop('queue', None)
         kwargs = options.pop('kwargs', {})
-        return args, kwargs, options
+        return args, kwargs, queue, options
 
     @staticmethod
     def backend_configured(result):
@@ -39,10 +40,10 @@ class TaskAsyncApply(BaseTaskHandler):
     def post(self, taskname):
         celery = self.application.celery_app
 
-        args, kwargs, options = self.get_task_args()
+        args, kwargs, queue, options = self.get_task_args()
         logging.debug("Invoking task '%s' with '%s' and '%s'" %
                      (taskname, args, kwargs))
-        result = celery.send_task(taskname, args=args, kwargs=kwargs)
+        result = celery.send_task(taskname, args=args, kwargs=kwargs, queue=queue)
         response = {'task-id': result.task_id}
         if self.backend_configured(result):
             response.update(state=result.state)
